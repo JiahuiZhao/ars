@@ -43,12 +43,18 @@ ars <- function(n,
   ##*********************** Some Important functions ************************##
   
   ## Check log concave
+  # This function checks if a function is log-concave for a given domain. 
+  check_concave <- function(f, lower, upper){
+    if (lower == -Inf) {lower = .Machine$double.xmin} 
+    if (upper == Inf) {upper = .Machine$double.xmax}
+    theta <- seq(0,1, 0.01) 
+    test <- f(theta*lower+(1-theta)*upper) >= f(lower)^theta*f(upper)^(1-theta)
+    return(all(test))
+  }
   
   ## Check function well-defined on interval
   
   ## function that draws sample from sk (inverse CDF?)
-  
-  ##
   
   ## take care of special distributions, e.g. uniform distribution 
   
