@@ -71,46 +71,32 @@ ars <- function(n,
   
   # taking derivative
   dh <- function(x, h, dx = 1e-8) {
-    return((h(x+dx)-h(x))/dx)
+    return((h(x + dx) - h(x)) / dx)
   }
   
   
 
-  cal_zk <- function(x, h, dh) {
-    tmp = c()
-    for (j in 1:(length(x)-1)) {
-      zj = (h(x[j+1])-h(x[j])-x[j+1]*dh(x[j+1])+x[j]*h(x[j]))/(dh(x[j])-dh(x[j+1]))
-      tmp = append(tmp, zj)
-    }
-    return(tmp)
+  cal_z <- function(x, h, dh, lower, upper) {
+    return(c(lower, diff(x, lag = 1) - diff(x * h(x), lag = 1) / -diff(dh(x, h), lag = 1), upper))
   }
   
   
   
   cal_uk <- function(x, h, dh) {
-    m_tmp = c()
-    int_tmp = c()
-    for (j in 1:length(x)) {
-      m_tmp = append(m_tmp, dh(x[j]))
-      int_tmp = append(int_tmp, h(x[j] - x[j]*dh(x[j])))
-    }
-    return(list(slope = m_tmp, intercept = int_tmp))
+    return(list(slope = dh(x), intercept = h(x) - x * dh(x)))
   }
   
   
   
   cal_lk <- function(x, h) {
-    m_tmp = c()
-    int_tmp = c()
-    for (j in 1:(length(x)-1)) {
-      m_tmp = append(m_tmp, (h(x[j+1])-h(x[j]))/(x[j+1]-x[j]))
-      int_tmp = append(int_tmp, (x[j+1]*h(x[j])-x[j]*h([j+1]))/(x[j+1]-x[j]))
-    }
-    return(list(slope = m_tmp,
-                intercept = int_tmp))
+    return(list(slope = diff(h(x)) / diff(x), intercept = (x[-1] * h(x[-length(x)]) - x[-length(x)] * h(x[-1])) / diff(x)))
   }
   
-  
+
+
+  # cal_sk <- function() {
+
+  # }
   
   ## ************************* Check Boundary & Set Initial abscissae **************** ###
   
