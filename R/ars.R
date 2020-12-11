@@ -55,6 +55,7 @@ ars <- function(n,
   ## Check function well-defined on interval
   
   ## function that draws sample from sk (inverse CDF?)
+  get_sample()
   
   ## take care of special distributions, e.g. uniform distribution 
   
@@ -68,35 +69,37 @@ ars <- function(n,
   }
   
   
-  
-  # taking derivative
   dh <- function(x, h, dx = 1e-8) {
     return((h(x + dx) - h(x)) / dx)
   }
   
-  
 
-  cal_z <- function(x, h, dh, lower, upper) {
+  cal_zk <- function(x, h, dh, lower, upper) {
     return(c(lower, diff(x, lag = 1) - diff(x * h(x), lag = 1) / -diff(dh(x, h), lag = 1), upper))
   }
   
   
   
   cal_uk <- function(x, h, dh) {
-    return(list(slope = dh(x), intercept = h(x) - x * dh(x)))
+    return(list(slope = dh(x), 
+                intercept = h(x) - x * dh(x)))
   }
-  
   
   
   cal_lk <- function(x, h) {
-    return(list(slope = diff(h(x)) / diff(x), intercept = (x[-1] * h(x[-length(x)]) - x[-length(x)] * h(x[-1])) / diff(x)))
+    return(list(slope = c(-Inf, 
+                          diff(h(x)) / diff(x), 
+                          -Inf), 
+                intercept = c(0, 
+                              (x[-1] * h(x[-length(x)]) - x[-length(x)] * h(x[-1])) / diff(x), 
+                              0))
   }
   
 
-
-  # cal_sk <- function() {
+  # cal_sk <- function() {    ########### how
 
   # }
+  
   
   ## ************************* Check Boundary & Set Initial abscissae **************** ###
   
@@ -125,7 +128,9 @@ ars <- function(n,
     x0 = c(lower, upper)
   }
   
-  x_abscissae = seq(x0[1], x0[2], length.out = k+2)[2:(k+1)] # avoid two boundary points
+  x_min = x0[1]
+  x_max = x0[2]
+  x_abscissae = seq(x_min, x_max, length.out = k+2)[2:(k+1)] # avoid two boundary points
                                                              # use interior points as abscissae
                                                   
   
@@ -145,19 +150,27 @@ ars <- function(n,
   
   while(length(samples) < n) {
     
-    ### sampling step
-    x_star = get_sample()  ## draw sample from sk
+    ### get sample
+    x_star = get_sample()  ## draw sample from sk, how ?????????????????????????
     w = runif(1, 0, 1)
     
     
-    if (w <= exp()) {                   # match by first condition, l - u
+    ### check position of x*
+    idx.u = findInterval(x_star, c(x_min, zk, x_max))
+    u_star = uk_slope[idx.u] * x_star + uk_intercept
+    
+    pidx.l = findInterval(x_star, c(x_min, x_abscissae, x_max))
+    l_star = lk_slope[idx.l] * x_star + lk_intercept  # make sure x < x1 and x > xk has l = -Inf
+    
+    
+    if (w <= exp(l_star - u_star)) {             # match by first condition, l - u
         samples = append(samples, x_star)
       
-      } else if (w <= exp(h(x_star) - )) {       # match by second condition, h - u
+      } else if (w <= exp(h(x_star) - u_star)) {       # match by second condition, h - u
           samples = append(samples, x_star)
           update = TRUE
-      
       }
+    
     
     ###  Updating step, when x* is added (Tk --> Tk+1)
     if (update == TRUE) {
