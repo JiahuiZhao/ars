@@ -1,7 +1,7 @@
 library(pracma)    # to calculate first derivative using central difference method 
 
 
-get_sample = function(g = dnorm, bounds = c(-5, 5), n = 100, initial = c(-1, 1)) {
+get_sample = function(g = dnorm, bounds = c(-5, 5), n = 100, initial = NULL) {
   if (bounds[1] == -Inf) {
     # choose x1 st h'(x_1) = 0
   } 
@@ -10,13 +10,77 @@ get_sample = function(g = dnorm, bounds = c(-5, 5), n = 100, initial = c(-1, 1))
     # choose h'(x_k) = 0
   }
   
+  if (is.null(initial)) {
+    initial = calc_init_vals(g, bounds)
+  }
+  
   Tk = initial
   for (k in length(initial):(n - 1)) {
     Tk = sample_k(g, bounds, Tk, initial)
-    print(Tk)
+    #rint(Tk)
   }
   
+}
+
+
+
+calc_init_vals <- function(g=dnorm, bounds = c(-Inf, Inf)) {
+  h <- function(x) {log(g(x))}
+  lower <- bounds[1]
+  upper <- bounds[2]
   
+  # Case 1
+  if (lower == -Inf & upper == Inf) {
+    x1 = 0
+    x2 = 1
+    
+    if (fderiv(g, x1)>0) {x1=0} else {
+      while (fderiv(g,x1) <= 0) {
+        x1 <- x1 - 1
+      }
+    }
+    
+    if (fderiv(g, x2)<0) {x2=1} else {
+      while (fderiv(g,x2) >= 0) {
+        x2 <- x2 + 1
+      }
+    }
+    return(c(x1, x2))
+  }
+  
+  # Case 2
+  if (lower == -Inf & upper != Inf) {
+    x1 = upper - 0.1
+    x2 = upper - 0.01
+    
+    if (fderiv(g, x1) > 0) {x1 = upper - 0.1} else {
+      while (fderiv(g, x1)<=0) {
+        x1 <- x1 - 1
+      }
+    }
+    return(c(x1, x2))
+  }
+  
+  # Case 3
+  if (lower != -Inf & upper == Inf) {
+    x1 = lower + 0.01
+    x2 = lower + 0.1
+    
+    if (fderiv(g, x2) < 0) {x2 = lower + 0.1} else {
+      while (fderiv(g, x2) >=0) {
+        x2 <- x2 + 1
+      }
+    }
+    return(c(x1, x2))
+  } 
+  
+  # Case 4
+  if (lower != Inf & upper != Inf){
+    mid_point <- 0.5*(upper - lower)
+    x1 <- 0.5*(mid_point - lower)
+    x2 <- 0.5*(upper - mid_point)
+    return(c(x1,x2))
+  }
 }
 
 sample_k = function(g, bounds, Tk, initial) {
@@ -24,14 +88,12 @@ sample_k = function(g, bounds, Tk, initial) {
   z = calc_z(bounds, Tk, h)
   uks = calc_uk(h, Tk, F)
   exp_uks = calc_uk(h, Tk, T)
-  #sk_x = calc_sk(x, z, exp_uks)
   lks = calc_lk(h, Tk)
   
-  # Sample x_star from sk 
-  # Check x_star
+  # Sample x_star from sk and check x_star
  point = NULL
   while (is.null(point)) {
-    x_star = sample(c(runif(5), rnorm(5)), size = 1) # for now 
+    x_star = sample_sk(Tk, z, h, exp_uks)
     check_x_star = check_x(x_star, z, Tk, uks, lks, h)
     #print(check_x_star)
     if (!is.null(check_x_star)) {
@@ -48,7 +110,6 @@ check_x = function(x, z, Tk, uks, lks, h) {
   
   uk_x = get_uk_x(x, z, uks)
   lk_x = get_lk_x(x, Tk, lks)
-  
   
   if (w <= exp(lk_x - uk_x)) {
     # accept x_star
@@ -112,6 +173,53 @@ calc_uk = function(h, Tk, exp = T) {
   
   uks = lapply(Tk, function(xj) uk(xj, exp))
   return(uks)
+}
+
+
+sample_sk = function(Tk, z, h, exp_uks) {
+  # Sample from uniform to determine where point lies on domain.
+  #z_star = runif(1, min = z[1], max = z[length(z)])
+  lens = sapply(1:(length(z) - 1), function(i) z[i + 1] - z[i])
+  # How to handle infinite case? 
+  # infs = which(is.infinite(lens)) 
+  # if (length(infs) > 0) {
+  #   probs = lens[-infs]/sum(lens[-infs])
+  #   if (length(probs) == 0) {
+  #     probs = rep(1/length(infs), length(infs))
+  #   } else {
+  #     probs = 
+  #   }
+  # }
+  probs = lens/sum(lens)
+  z_star = rmultinom(1, 1, probs)
+  #bool = sapply(1:length(z), function(j) z_star >= z[j - 1] && z_star <=  z[j]) 
+  #ind = which(bool == T)
+  ind = which(z_star == 1)
+  interval = c(z[ind], c(z[ind + 1]))
+  
+  dH = sapply(Tk, function(xj) fderiv(h, xj))
+  C_3 = sum(sapply(1:length(Tk), function(j) integrate_exp(z[j], z[j + 1], Tk[j], h, dH[j])))
+  
+  dh = dH[ind]
+  xj = Tk[ind]
+  z_min = interval[1]
+  val = -1
+  
+  while (val < 0) {
+    U = runif(1)
+    val = dh * C_3 * U/exp(h(xj) - xj*dh) + exp(z_min * dh)
+  }
+  
+  x_star = log(dh * C_3 * U/exp(h(xj) - xj*dh) + exp(z_min * dh))/dh
+  return(x_star)
+}
+
+integrate_exp = function(a, b, xj, h, dh) {
+  (exp(h(xj) - xj*dh)/dh) * (exp(b*dh) - exp(a*dh))
+}
+
+sk_x = function(x) {
+  exp_uks[[2]](x)/sum(sapply(1:length(exp_uks), function(i) integrate(exp_uks[[i]], lower = z[i], upper = z[i + 1])$value))
 }
 
 sk = function(x, z, exp_uks, ind) {
