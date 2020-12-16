@@ -1,5 +1,56 @@
 ---
 title: "Final Report"
-date: "12/5/2020"
+date: "12/18/2020"
 output: pdf_document
 ---
+
+
+For $z \in [z_{j - 1}, z_j]$ and $j = 1, 2, ..., k$, the upper bound is defined as 
+\begin{align*}
+u_k(x) = h(x_j) + (x - x_j)h'(x_j).
+\end{align*}
+
+The sampling density is 
+\begin{align*}
+s_k(x) = \frac{\exp u_k(x)}{\int_D \exp u_k(x') dx'}.
+\end{align*}
+
+Observations will be sampled as follows. First, the interval to which $x$ belongs will be sampled. 
+The probability $p_j$ that $x$ belongs to interval $[z_{j - 1}, z_j]$ is the length of the interval divided by the total size of the domain $D$, i.e., $p_j = \frac{|z_j - z_{j - 1}|}{|D|}$. Then the interval to which $x$ belongs is distributed as $\text{Multinomial}(p = (p_1, p_2, ..., p_k))$. 
+
+The CDF, given that $x$ belongs to a particular interval, is then computed as 
+\begin{align*}
+S_X(x) = P(X \leq x \vert x \in [z_{j - 1}, z_j]) &= \frac{\int_{z_{j - 1}}^x \exp u_k(z) dz}{\int_D \exp u_k(x') dx'}.
+\end{align*}
+The numerator can be integrated as follows: 
+\begin{align*}
+\int_{z_{j - 1}}^x \exp u_k(z) dz &= \int_{z_{j - 1}}^x \exp(h(x_j) + (z - x_j)h'(x_j)) dz \\
+&= \exp(h(x_j) - x_j h'(x_j)) \int_{z_{j - 1}}^x \exp(z h'(x_j)) dz \\
+&=  \exp(h(x_j) - x_j h'(x_j)) \cdot \frac{\exp(z h'(x_j))}{h'(x_j)} \big \vert_{z_{j - 1}}^{x} \\
+&= \frac{\exp(h(x_j) - x_j h'(x_j)) }{h'(x_j)} \left(\exp(x h'(x_j)) - \exp(z_{j - 1} h'(x_j)) \right). 
+\end{align*}
+
+Meanwhile, the denominator of the CDF can be expressed as 
+\begin{align*}
+\int_D \exp u_k(x') dx' &= \int_{z_0}^{z_1} \exp u_k(x') dx' + \hdots \int_{z_{k - 1}}^{z_k} \exp u_k(x') dx' \\
+&= \sum_{j = 1}^k \int_{z_{j - 1}}^{z_j} \exp u_k(x') dx' \\
+&= \sum_{j = 1}^k \frac{\exp(h(x_j) - x_j h'(x_j))}{h'(x_j)} \left(\exp(z_j h'(x_j)) - \exp(z_{j - 1} h'(x_j)) \right). 
+\end{align*}
+
+Next, the inverse CDF must be computed. 
+Let $Y = P(X \leq x \vert x \in [z_{j - 1}, z_j])$. Then exchanging variables and solving for $x$, we have 
+\begin{align*}
+x = \frac{\exp(h(x_j) - x_j h'(x_j))\left(\exp(y h'(x_j)) - \exp(z_{j - 1} h'(x_j)) \right)}{h'(x_j) \int_D \exp u_k(x')dx'} \text{  } \implies \\
+\frac{h'(x_j) \int_D \exp u_k(x')dx'}{\exp(h(x_j) - x_j h'(x_j))} x = \exp(y h'(x_j)) - \exp(z_{j - 1} h'(x_j)) \text{  } \implies\\
+\frac{h'(x_j) \int_D \exp u_k(x')dx'}{\exp(h(x_j) - x_j h'(x_j))} x + \exp(z_{j - 1} h'(x_j)) = \exp(y h'(x_j)) \text{  } \implies\\
+\log \left(\frac{h'(x_j) \int_D \exp u_k(x')dx'}{\exp(h(x_j) - x_j h'(x_j))} x + \exp(z_{j - 1} h'(x_j))  \right)/h'(x_j) = y.
+\end{align*}
+
+Thus, the inverse CDF is 
+\begin{align*}
+S_X^{-1}(x) &= \log \left(\frac{h'(x_j) \int_D \exp u_k(x')dx'}{\exp(h(x_j) - x_j h'(x_j))} x + exp(z_{j - 1} h'(x_j))  \right)/h'(x_j)
+\end{align*}
+
+In summary, we generate from the multinomial distribution to determine the interval $[z_{j - 1}, z_j]$ to which $x$ belongs.
+Following the inverse CDF method of sampling, we then generate $x$ as a Uniform(0, 1) random variable. Finally, we compute $x^* = S_X^{-1}(x)$. 
+
