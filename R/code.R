@@ -1,24 +1,54 @@
 library(pracma)    # to calculate first derivative using central difference method 
 
 
-get_sample = function(g = dnorm, bounds = c(-5, 5), n = 100, initial = NULL) {
-  if (bounds[1] == -Inf) {
-    # choose x1 st h'(x_1) = 0
-  } 
-  
-  if (bounds[2] == Inf) {
-    # choose h'(x_k) = 0
-  }
-  
+ars = function(g = dnorm, bounds = c(-Inf, Inf), n = 1000, initial = NULL) {
   if (is.null(initial)) {
     initial = calc_init_vals(g, bounds)
   }
   
+  new_sample = rep(NA, n)
   Tk = initial
-  for (k in length(initial):(n - 1)) {
-    Tk = sample_k(g, bounds, Tk, initial)
-    #print(Tk)
+  while(anyNA(new_sample)) {
+    # Functions
+    h = function(x) log(g(x))
+    z = calc_z(bounds, Tk, h)
+    uks = calc_uk(h, Tk, F)
+    exp_uks = calc_uk(h, Tk, T)
+    lks = calc_lk(h, Tk)
+    
+    # Sample x_star
+    x_star = sample_sk(Tk, z, h, exp_uks)
+    
+    # Check x_star
+    w = runif(1)
+    uk_x = get_uk_x(x_star, z, uks)
+    lk_x = get_lk_x(x_star, Tk, lks)
+    
+    if (length(which(!is.na(new_sample))) == 0) {
+      ind = 1
+    } else {
+      ind = max(which(!is.na(new_sample))) + 1
+    }
+    
+    update = F
+    
+    if (w <= exp(lk_x - uk_x)) {
+      # accept x_star
+      new_sample[ind] = x_star
+    } else {
+      update = T
+      if (w <= exp(h(x_star) - uk_x)) {
+        new_sample[ind] = x_star
+      } 
+    } 
+    
+    if (update) {
+      Tk = sort(c(Tk, x_star))
+    }
+    
   }
+  
+  return(new_sample)
   
 }
 
@@ -83,43 +113,6 @@ calc_init_vals <- function(g=dnorm, bounds = c(-Inf, Inf)) {
   }
 }
 
-sample_k = function(g, bounds, Tk, initial) {
-  h = function(x) log(g(x))
-  z = calc_z(bounds, Tk, h)
-  uks = calc_uk(h, Tk, F)
-  exp_uks = calc_uk(h, Tk, T)
-  lks = calc_lk(h, Tk)
-  
-  # Sample x_star from sk and check x_star
- point = NULL
-  while (is.null(point)) {
-    x_star = sample_sk(Tk, z, h, exp_uks)
-    check_x_star = check_x(x_star, z, Tk, uks, lks, h)
-    #print(check_x_star)
-    if (!is.null(check_x_star)) {
-      point = x_star
-    }
-  }
- 
- return(sort(c(Tk, point)))
-}
-
-check_x = function(x, z, Tk, uks, lks, h) {
-  # Sample from sk(x) to get x_star
-  w = runif(1)
-  
-  uk_x = get_uk_x(x, z, uks)
-  lk_x = get_lk_x(x, Tk, lks)
-  
-  if (w <= exp(lk_x - uk_x)) {
-    # accept x_star
-    return(x)
-  } else if (w <= exp(h(x) - uk_x)) {
-    return(x)
-  } else {
-    return(NULL)
-  }
-}
 
 
 get_uk_x = function(x, z, uks) {
@@ -191,14 +184,10 @@ sample_sk = function(Tk, z, h, exp_uks) {
   dh = dH[ind]
   xj = Tk[ind]
   z_min = interval[1]
-  val = -1
   
-  while (val < 0) {
-    U2 = runif(1)
-    val = dh * norm * U2/exp(h(xj) - xj*dh) + exp(z_min * dh)
-  }
+  U2 = runif(1)
   
-  x_star = log(dh * norm * U2/exp(h(xj) - xj*dh) + exp(z_min * dh))/dh
+  x_star = log(dh * integrals[ind] * U2/exp(h(xj) - xj*dh) + exp(z_min * dh))/dh
   
   return(x_star)
 }
@@ -207,20 +196,6 @@ integrate_exp = function(a, b, xj, h, dh) {
   (exp(h(xj) - xj*dh)/dh) * (exp(b*dh) - exp(a*dh))
 }
 
-sk_x = function(x) {
-  exp_uks[[2]](x)/sum(sapply(1:length(exp_uks), function(i) integrate(exp_uks[[i]], lower = z[i], upper = z[i + 1])$value))
-}
-
-sk = function(x, z, exp_uks, ind) {
-  exp_uks[[ind]](x)/sum(sapply(1:length(exp_uks), function(i) integrate(exp_uks[[i]], lower = z[i], upper = z[i + 1])$value))
-}
-
-
-calc_sk = function(x, z, exp_uks) {
-  bool = sapply(1:(length(z) - 1), function(i) x <= z[i + 1] && x >= z[i])
-  ind = which(bool == T)
-  return(sk(x, z, exp_uks, ind))
-}
 
 calc_lkj = function(xj, xj1, h) {
   lk = function(x) {
