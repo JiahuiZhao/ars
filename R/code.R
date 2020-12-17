@@ -17,7 +17,7 @@ get_sample = function(g = dnorm, bounds = c(-5, 5), n = 100, initial = NULL) {
   Tk = initial
   for (k in length(initial):(n - 1)) {
     Tk = sample_k(g, bounds, Tk, initial)
-    #rint(Tk)
+    #print(Tk)
   }
   
 }
@@ -177,28 +177,16 @@ calc_uk = function(h, Tk, exp = T) {
 
 
 sample_sk = function(Tk, z, h, exp_uks) {
-  # Sample from uniform to determine where point lies on domain.
-  #z_star = runif(1, min = z[1], max = z[length(z)])
-  lens = sapply(1:(length(z) - 1), function(i) z[i + 1] - z[i])
-  # How to handle infinite case? 
-  # infs = which(is.infinite(lens)) 
-  # if (length(infs) > 0) {
-  #   probs = lens[-infs]/sum(lens[-infs])
-  #   if (length(probs) == 0) {
-  #     probs = rep(1/length(infs), length(infs))
-  #   } else {
-  #     probs = 
-  #   }
-  # }
-  probs = lens/sum(lens)
-  z_star = rmultinom(1, 1, probs)
-  #bool = sapply(1:length(z), function(j) z_star >= z[j - 1] && z_star <=  z[j]) 
-  #ind = which(bool == T)
-  ind = which(z_star == 1)
-  interval = c(z[ind], c(z[ind + 1]))
-  
   dH = sapply(Tk, function(xj) fderiv(h, xj))
-  C_3 = sum(sapply(1:length(Tk), function(j) integrate_exp(z[j], z[j + 1], Tk[j], h, dH[j])))
+  # Sample which interval the value should belong to, using the densities of Uk
+  integrals = sapply(1:length(Tk), function(j) integrate_exp(z[j], z[j + 1], Tk[j], h, dH[j]))
+  norm = sum(integrals)
+  pdfs = integrals/norm
+  cdfs = cumsum(pdfs)
+  
+  U1 = runif(1)
+  ind = which(cdfs >= U1)[1]
+  interval = c(z[ind], c(z[ind + 1]))
   
   dh = dH[ind]
   xj = Tk[ind]
@@ -206,11 +194,12 @@ sample_sk = function(Tk, z, h, exp_uks) {
   val = -1
   
   while (val < 0) {
-    U = runif(1)
-    val = dh * C_3 * U/exp(h(xj) - xj*dh) + exp(z_min * dh)
+    U2 = runif(1)
+    val = dh * norm * U2/exp(h(xj) - xj*dh) + exp(z_min * dh)
   }
   
-  x_star = log(dh * C_3 * U/exp(h(xj) - xj*dh) + exp(z_min * dh))/dh
+  x_star = log(dh * norm * U2/exp(h(xj) - xj*dh) + exp(z_min * dh))/dh
+  
   return(x_star)
 }
 
