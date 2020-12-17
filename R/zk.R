@@ -10,7 +10,9 @@
 ## Output: a function of zk
 
 calc_zj = function(xj, xj1, h) {
-  zj = (h(xj1) - h(xj) - xj1*fderiv(h, xj1) + xj*fderiv(h, xj))/(fderiv(h, xj) - fderiv(h, xj1))
+  zj = (h(xj1) - h(xj) - xj1*pracma::fderiv(h, xj1) +
+          xj*pracma::fderiv(h, xj))/(pracma::fderiv(h, xj) -
+                                       pracma::fderiv(h, xj1))
   return(zj)
 }
 

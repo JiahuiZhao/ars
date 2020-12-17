@@ -17,7 +17,7 @@ ars(g = dnorm, bounds = c(-Inf, Inf), n = 1000, initial = NULL)
 
 
 \value{
-a length n vector of samples from function g 
+a length n vector of samples from function g
 }
 
 \description{
@@ -31,9 +31,9 @@ Adaptive Rejection Sampling method for sampling from univarite and log-concave f
 \examples{
 n <- 1000
 x <- ars(dnorm, bounds = c(-Inf, Inf), n, initial = NULL)
-x <- ars(dexp, bounds = c(1, Inf), n, initial = NULL)
-x <- ars(dgamma, bounds = c(0, Inf), n, initial = NULL)
-  
+x <- ars(dnorm, bounds = c(0, Inf), n, initial = NULL)
+x <- ars(dexp, bounds = c(0, Inf), n, initial = NULL)
+
 ## Plot histogram to check
 ## hist(x, freq=FALSE)
 }

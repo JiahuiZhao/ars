@@ -1,28 +1,28 @@
-## Define uk functions for all abscissae x 
+## Define uk functions for all abscissae x
 ## Input: log concave function h, x abscissae Tk
 ## Output: a list of ukj functions
 
 calc_uk = function(h, Tk, exp = T) {
-  
+
   uk = function(xj, exp, x) {
-    
-    # calculate uk 
+
+    # calculate uk
     if (!exp) {
       fun = function(x) {
-        h(xj) + (x - xj) * fderiv(h, xj)
+        h(xj) + (x - xj) * pracma::fderiv(h, xj)
       }
     } else {
-      
+
       # calculate exp(uk)
       fun = function(x) {
-        exp(h(xj)) * exp((x - xj) * fderiv(h, xj))
+        exp(h(xj)) * exp((x - xj) * pracma::fderiv(h, xj))
       }
     }
-    
+
     # return either a list of uk or a list of exp(uk) function
     return(fun)
   }
-  
+
   uks = lapply(Tk, function(xj) uk(xj, exp))
   return(uks)
 }
