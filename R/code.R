@@ -76,9 +76,9 @@ calc_init_vals <- function(g=dnorm, bounds = c(-Inf, Inf)) {
   
   # Case 4
   if (lower != Inf & upper != Inf){
-    mid_point <- 0.5*(upper - lower)
-    x1 <- 0.5*(mid_point - lower)
-    x2 <- 0.5*(upper - mid_point)
+    mid_point <- mean(c(lower, upper))
+    x1 <- mean(c(mid_point, lower))
+    x2 <- mean(c(mid_point, upper))
     return(c(x1,x2))
   }
 }
@@ -233,3 +233,4 @@ calc_lk = function(h, Tk) {
   lks = lapply(1:(length(Tk) - 1), function(j) calc_lkj(Tk[j], Tk[j + 1], h))
   return(lks)
 }
+
