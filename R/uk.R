@@ -5,10 +5,6 @@ get_uk_x = function(x, z, uks) {
   return(uks[[ind]](x))
 }
 
-ukj = function(xj, x, h) {
-  h(xj) + (x - xj) * fderiv(h, xj)
-}
-
 calc_uk = function(h, Tk, exp = T) {
   uk = function(xj, exp, x) {
     if (!exp) {
