@@ -34,14 +34,14 @@ calc_init_vals <- function(g=dnorm, bounds = c(-Inf, Inf)) {
     x1 = 0
     x2 = 1
     
-    if (fderiv(g, x1)>0) {x1=0} else {
-      while (fderiv(g,x1) <= 0) {
+    if (fderiv(h, x1)>0) {x1=0} else {
+      while (fderiv(h,x1) <= 0) {
         x1 <- x1 - 1
       }
     }
     
-    if (fderiv(g, x2)<0) {x2=1} else {
-      while (fderiv(g,x2) >= 0) {
+    if (fderiv(h, x2)<0) {x2=1} else {
+      while (fderiv(h,x2) >= 0) {
         x2 <- x2 + 1
       }
     }
@@ -53,8 +53,8 @@ calc_init_vals <- function(g=dnorm, bounds = c(-Inf, Inf)) {
     x1 = upper - 0.1
     x2 = upper - 0.01
     
-    if (fderiv(g, x1) > 0) {x1 = upper - 0.1} else {
-      while (fderiv(g, x1)<=0) {
+    if (fderiv(h, x1) > 0) {x1 = upper - 0.1} else {
+      while (fderiv(h, x1)<=0) {
         x1 <- x1 - 1
       }
     }
@@ -66,8 +66,8 @@ calc_init_vals <- function(g=dnorm, bounds = c(-Inf, Inf)) {
     x1 = lower + 0.01
     x2 = lower + 0.1
     
-    if (fderiv(g, x2) < 0) {x2 = lower + 0.1} else {
-      while (fderiv(g, x2) >=0) {
+    if (fderiv(h, x2) < 0) {x2 = lower + 0.1} else {
+      while (fderiv(h, x2) >=0) {
         x2 <- x2 + 1
       }
     }
