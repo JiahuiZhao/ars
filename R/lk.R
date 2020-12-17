@@ -4,19 +4,6 @@
 ##  Functions related to Lk
 ###########################################################
 
-
-## Define the function to calculate lk for a specific x value
-## Input: corresponding abscissae xj xj1, log concave function h
-## Output: a function of lk
-
-calc_lkj = function(xj, xj1, h) {
-  lk = function(x) {
-    ((xj1 - x) * h(xj) + (x - xj) * h(xj1))/(xj1 - xj)
-  }
-  return(lk)
-}
-
-
 ## Define lk functions for all abscissae x 
 ## Input: log concave function h, x abscissae Tk
 ## Output: a list of lk functions
