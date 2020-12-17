@@ -1,192 +1,119 @@
-# Adaptive Rejection Sampler
-#
-#
-# Code is developed based on Adaptive Rejection Sampling for Gibbs Sampling
-#
-#
-# Input:
-# @param: n: the number of samples need to generate
-# @param: f: the function where samples are generated from
-# @param: k: initial numbers of abscissaes
-# @param: lower: lower bound of D
-# @param: upper: upper bound of D
-# @param: step: delta x used in finding valid lower and upper bound
 
-# Output: a vector of samples generated, length n
 
-#   Install Package:           'Ctrl + Shift + B'
-#   Check Package:             'Ctrl + Shift + E'
-#   Test Package:              'Ctrl + Shift + T'
+library(pracma)   
 
-ars <- function(n,
-                f, 
-                k = 2,
-                lower = -Inf, 
-                upper = Inf, 
-                step = 0.5) {
-  
-  ##****************************** Check Inputs **********************************##
-  
-  if(is.numeric(n) == FALSE) {
-    stop("Number of samples to generate needs to be a numeric value.", call. = FALSE)}
-  if(is.function(dfn) == FALSE) {
-    stop("Input funciton should be a function.", call. = FALSE)
-  }
-  if(lower == upper) {
-    stop("Please provide valid lower and upper bounds.", call. = FALSE)
-  }
-  
-  
-  # ADD MORE
-  
-  
-  ##*********************** Some Important functions ************************##
-  
-  ## Check log concave
-  # This function checks if a function is log-concave for a given domain. 
-  check_concave <- function(f, lower, upper){
-    if (lower == -Inf) {lower = .Machine$double.xmin} 
-    if (upper == Inf) {upper = .Machine$double.xmax}
-    theta <- seq(0,1, 0.01) 
-    test <- f(theta*lower+(1-theta)*upper) >= f(lower)^theta*f(upper)^(1-theta)
-    return(all(test))
-  }
-  
-  ## Check function well-defined on interval
-  
-  ## function that draws sample from sk (inverse CDF?)
-  get_sample()
-  
-  ## take care of special distributions, e.g. uniform distribution 
-  
+## ********************************************  Initialization  **************************************** ##
 
+calc_init_vals <- function(g=dnorm, bounds = c(-Inf, Inf)) {
   
-  ##**************************** Initialization *****************************##
+  h <- function(x) {log(g(x))}
+  lower <- bounds[1]
+  upper <- bounds[2]
   
-  # taking log
-  h <- function(x, fun = f) {
-    return(log(fun(x, ...)))
-  }
-  
-  
-  dh <- function(x, h, dx = 1e-8) {
-    return((h(x + dx) - h(x)) / dx)
-  }
-  
-
-  cal_zk <- function(x, h, dh, lower, upper) {
-    return(c(lower, diff(x, lag = 1) - diff(x * h(x), lag = 1) / -diff(dh(x, h), lag = 1), upper))
-  }
-  
-  
-  
-  cal_uk <- function(x, h, dh) {
-    return(list(slope = dh(x), 
-                intercept = h(x) - x * dh(x)))
-  }
-  
-  
-  cal_lk <- function(x, h) {
-    return(list(slope = c(-Inf, 
-                          diff(h(x)) / diff(x), 
-                          -Inf), 
-                intercept = c(0, 
-                              (x[-1] * h(x[-length(x)]) - x[-length(x)] * h(x[-1])) / diff(x), 
-                              0))
-  }
-  
-
-  # cal_sk <- function() {    ########### how
-
-  # }
-  
-  
-  ## ************************* Check Boundary & Set Initial abscissae **************** ###
-  
-  if (lower == -Inf && upper != Inf) { # valid upper, invalid lower
+  # Case 1
+  if (lower == -Inf & upper == Inf) {
+    x1 = 0
+    x2 = 1
     
-    start = upper
-    while(dh(start) <= 0) { start = start - step }
-    x0 = c(start, upper)
-    
-  } else if (l != -Inf && u == Inf) { # valid lower, invalid upper
-    
-    start = lower
-    while(dh(start) >= 0) { start = start + step }
-    x0 = c(lower, start)
-    
-  } else if (l == -Inf && u == Inf) { # both lower, upper invalid
-    
-    startl = 0 - step
-    startu = 0 + step
-    while(dh(start1) <= 0) { startl = startl - step } 
-    while(dh(startu) >= 0) { startu = startu + step }
-    x0 = c(startl, startu)
-    
-  } else {                            # both lower, upper valid
-    
-    x0 = c(lower, upper)
-  }
-  
-  x_min = x0[1]
-  x_max = x0[2]
-  x_abscissae = seq(x_min, x_max, length.out = k+2)[2:(k+1)] # avoid two boundary points
-                                                             # use interior points as abscissae
-                                                  
-  
-  ##******************************** Main Function **********************************##
-  
-  ## initialize variables that will be updated during iteration
-  
-  samples <- c()
-  zk <- cal_zk(x_abscissae, h, dh)
-  uk_slope <- cal_uk(x_abscissae, h, dh)[[1]]
-  uk_intercept <- cal_uk(x_abscissae, h, dh)[[2]]
-  lk_slope <- cal_lk(x_abscissae, h)[[1]]
-  lk_intercept <- cal_lk(x_abscissae, h)[[2]]
-  update <- FALSE
-  
-  ### Iteration ###
-  
-  while(length(samples) < n) {
-    
-    ### get sample
-    x_star = get_sample()  ## draw sample from sk, how ?????????????????????????
-    w = runif(1, 0, 1)
-    
-    
-    ### check position of x*
-    idx.u = findInterval(x_star, c(x_min, zk, x_max))
-    u_star = uk_slope[idx.u] * x_star + uk_intercept
-    
-    pidx.l = findInterval(x_star, c(x_min, x_abscissae, x_max))
-    l_star = lk_slope[idx.l] * x_star + lk_intercept  # make sure x < x1 and x > xk has l = -Inf
-    
-    
-    if (w <= exp(l_star - u_star)) {             # match by first condition, l - u
-        samples = append(samples, x_star)
-      
-      } else if (w <= exp(h(x_star) - u_star)) {       # match by second condition, h - u
-          samples = append(samples, x_star)
-          update = TRUE
-      }
-    
-    
-    ###  Updating step, when x* is added (Tk --> Tk+1)
-    if (update == TRUE) {
-      
-      # update x values
-      x_abscissae <- sort(c(x_abscissae, x_star))
-      
-      # update all relevent variables
-      zk <- cal_zk(x_abscissae, h, dh)
-      uk_slope <- cal_uk(x_abscissae, h, dh)[[1]]
-      uk_intercept <- cal_uk(x_abscissae, h, dh)[[2]]
-      lk_slope <- cal_lk(x_abscissae, h)[[1]]
-      lk_intercept <- cal_lk(x_abscissae, h)[[2]]
-      update <- FALSE
+    if (fderiv(h, x1)>0) {x1=0} else {
+      while (fderiv(h,x1) <= 0) {
+        x1 <- x1 - 1
       }
     }
+    
+    if (fderiv(h, x2)<0) {x2=1} else {
+      while (fderiv(h,x2) >= 0) {
+        x2 <- x2 + 1
+      }
+    }
+    return(c(x1, x2))
+  }
   
-  return(samples)
+  # Case 2
+  if (lower == -Inf & upper != Inf) {
+    x1 = upper - 0.1
+    x2 = upper - 0.01
+    
+    if (fderiv(h, x1) > 0) {x1 = upper - 0.1} else {
+      while (fderiv(h, x1)<=0) {
+        x1 <- x1 - 1
+      }
+    }
+    return(c(x1, x2))
+  }
+  
+  # Case 3
+  if (lower != -Inf & upper == Inf) {
+    x1 = lower + 0.01
+    x2 = lower + 0.1
+    
+    if (fderiv(h, x2) < 0) {x2 = lower + 0.1} else {
+      while (fderiv(h, x2) >=0) {
+        x2 <- x2 + 1
+      }
+    }
+    return(c(x1, x2))
+  } 
+  
+  # Case 4
+  if (lower != Inf & upper != Inf){
+    mid_point <- mean(c(lower, upper))
+    x1 <- mean(c(mid_point, lower))
+    x2 <- mean(c(mid_point, upper))
+    return(c(x1,x2))
+  }
+}
+
+
+## ********************************************  Main Function **************************************** ##
+
+ars = function(g = dnorm, bounds = c(-Inf, Inf), n = 1000, initial = NULL) {
+  if (is.null(initial)) {
+    initial = calc_init_vals(g, bounds)
+  }
+  
+  new_sample = rep(NA, n)
+  Tk = initial
+  while(anyNA(new_sample)) {
+    # Functions
+    h = function(x) log(g(x))
+    z = calc_z(bounds, Tk, h)
+    uks = calc_uk(h, Tk, F)
+    exp_uks = calc_uk(h, Tk, T)
+    lks = calc_lk(h, Tk)
+    
+    # Sample x_star
+    x_star = sample_sk(Tk, z, h, exp_uks)
+    
+    # Check x_star
+    w = runif(1)
+    uk_x = get_uk_x(x_star, z, uks)
+    lk_x = get_lk_x(x_star, Tk, lks)
+    
+    if (length(which(!is.na(new_sample))) == 0) {
+      ind = 1
+    } else {
+      ind = max(which(!is.na(new_sample))) + 1
+    }
+    
+    update = F
+    
+    if (w <= exp(lk_x - uk_x)) {
+      # accept x_star
+      new_sample[ind] = x_star
+    } else {
+      update = T
+      if (w <= exp(h(x_star) - uk_x)) {
+        new_sample[ind] = x_star
+      } 
+    } 
+    
+    if (update) {
+      Tk = sort(c(Tk, x_star))
+    }
+    
+  }
+  
+  return(new_sample)
+  
 }
