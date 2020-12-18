@@ -75,6 +75,6 @@ test_that("Distributions are correct", {
 
   print("test t and truncated t with degree of freedom 2")
   t_dist <- function(x) {dt(x, df = 2)}
-  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(1, Inf)), function(x) {ptrunc(x, "t", a = 0, b = Inf, df=2)})$p.value > 0.01)
-  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(-Inf, 1)), function(x) {ptrunc(x, "t", a = -Inf, b = 0, df=2)})$p.value > 0.01)
+  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(1, Inf)), function(x) {ptrunc(x, "t", a = 1, b = Inf, df=2)})$p.value > 0.001)
+  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(-Inf, 1)), function(x) {ptrunc(x, "t", a = -Inf, b = 1, df=2)})$p.value > 0.001)
   })

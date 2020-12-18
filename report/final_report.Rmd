@@ -174,4 +174,8 @@ In all three examples above, we can see curves with samples generating using `ar
 
 # Test
 
+```{r}
+# devtools::test()
+```
+
 

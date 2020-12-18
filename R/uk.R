@@ -36,6 +36,7 @@ calc_uk = function(h, Tk, exp = T) {
 ## Output: a numeric value uk(x)
 
 get_uk_x = function(x, z, uks) {
-  ind = findInterval(x, z)
+  bool = sapply(1:(length(z) - 1), function(i) x <= z[i + 1] && x >= z[i])
+  ind = which(bool == T)
   return(uks[[ind]](x))
 }
