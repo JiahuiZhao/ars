@@ -63,6 +63,42 @@ We repeat the above algorithm until we get enough samples.
 
 # Implementation
 
+The main function is `ars()`, which takes four arguments: 
+
+* g: the unvariate function from which to sample; log(g) must be a log concave function  
+  
+* bounds: a length 2 vector defining the lower and upper bounds for the distribution g  
+  
+* n: the number of observations to be sampled  
+  
+* initial: the initial value of x abscissae which can be defined by users  
+
+```{r, eval=FALSE}
+ars(g = dnorm, bounds = c(-Inf, Inf), n = 1000, initial = NULL)
+```
+
+The output of main function is a length-n vector of samples generated from distribution g.  
+  
+To make the code modular and portable, we created different helper functions and organized them into various files. Each file only contain auxiliary functions related a specific calculation need. Important auxiliary functions are listed below. 
+
+* In file `lk.R` 
+  + `calc_lkj` takes two abscissa values $x_j$, $x_{j+1}$, log concave function h as inputs. It defines and returns a function to calculate the value of $l_k$ at a specific x point.  
+  + `calc_lk` takes log concave function h and the abscissa vector $T_k$ as inputs. It defines and returns a list of $l_k$ functions.  
+  + `get_lk_x` takes a x value, abscissa vector $T_k$ and the list of $l_k$ functions returned by `cal_lk` function as inputs. It calculates and returns the value of $l_k$ at a specific point x. 
+* In file `sk.R`
+  + `integrate_exp` takes values for lower bound, upper bound, log concave function h and one abscissa $x_j$ and its derivative as inputs. It takes integral over the exponential $u_k$ function. It returns a integral value from lower boundary to upper boundary.   
+  + `sample_sk` takes the abscissa vector, log concave function h and the list of $u_k$ functions as inputs. It generates and returns a sample from an interval of $s_k$.
+* In file `uk.R`
+  + `calc_uk` takes log concave function h and abscissa vector $T_k$ as inputs. It defines and returns a list of $u_k$ function for all x in $T_k$.  
+  + `get_uk_x` takes a x value, intersection vector z returned by `calc_z` function and list of $u_k$ function return by `calc_uk` function as inputs. It calculates and returns the value of $u_k$ at a specific point x. 
+* In file `zk.R`
+  + `calc_zj` takes two abscissa values $x_j$, $x_{j+1}$ and the log concave function `h` as inputs. It defines the function to calculate the intersection of tangent line. It returns a function of $z_k$ as output.  
+  + `calc_z` takes the boundary vector, abscissa vector $T_k$ and log concave function h as inputs. It calculates intersections of consecutively paired tangent line. The output is a vector of intersections, z, bounded by two elements in vector boundary. 
+* In file `ars.R`
+  + `calc_init_vals` takes the distribution g and the numeric vector bounds as inputs. It initializes and returns abscissa x values by considering four cases: interval D has both lower and upper bounds, only has upper bound, only has lower bound and interval D is unbounded. This function returns a vector of x abscissa. 
+  
+# Result 
+
 # Test
 
 # Conclusion

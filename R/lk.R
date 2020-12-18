@@ -8,6 +8,13 @@
 ## Input: log concave function h, x abscissae Tk
 ## Output: a list of lk functions
 
+calc_lkj = function(xj, xj1, h) {
+  lk = function(x) {
+    ((xj1 - x) * h(xj) + (x - xj) * h(xj1))/(xj1 - xj)
+  }
+  return(lk)
+}
+
 calc_lk = function(h, Tk) {
   lks = lapply(1:(length(Tk) - 1), function(j) calc_lkj(Tk[j], Tk[j + 1], h))
   return(lks)

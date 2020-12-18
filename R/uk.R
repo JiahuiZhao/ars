@@ -2,6 +2,10 @@
 ## Input: log concave function h, x abscissae Tk
 ## Output: a list of ukj functions
 
+ukj = function(xj, x, h) {
+  h(xj) + (x - xj) * fderiv(h, xj)
+}
+
 calc_uk = function(h, Tk, exp = T) {
 
   uk = function(xj, exp, x) {
