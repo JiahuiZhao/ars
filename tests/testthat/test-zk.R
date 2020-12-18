@@ -1,5 +1,7 @@
 # Test functions in the zk.R file.
 
+library(ars)
+
 test_that("Test that the number of intersection points is
           always just one more than Tk", {
 

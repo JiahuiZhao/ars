@@ -1,3 +1,6 @@
+
+library(ars)
+
 # Test functions in the uk.R file.
 
 # Test calc_uk function.
