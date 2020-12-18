@@ -111,7 +111,7 @@ ars = function(g = dnorm, bounds = c(-Inf, Inf), n = 1000, initial = NULL) {
 
     # Initialization Step
     h = function(x) log(g(x))
-    z = calc_z(bounds, Tk, h)
+    z = sort(calc_z(bounds, Tk, h))
     uks = calc_uk(h, Tk, F)
     exp_uks = calc_uk(h, Tk, T)
     lks = calc_lk(h, Tk)

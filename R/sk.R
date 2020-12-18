@@ -20,6 +20,7 @@ integrate_exp = function(a, b, xj, h, dh) {
 
 sample_sk = function(Tk, z, h, exp_uks) {
 
+  x_star = NA
   dH = sapply(Tk, function(xj) pracma::fderiv(h, xj))
 
   # Decide which interval the value should belong to, using the densities of Uk
@@ -37,10 +38,13 @@ sample_sk = function(Tk, z, h, exp_uks) {
   xj = Tk[ind]
   z_min = interval[1]
 
-  # Inverse CDF Method to get value of x_star
-  U2 = runif(1)
+  while (is.na(x_star) || x_star <= z[1] || x_star >= z[length(z)]) {
 
-  x_star = log(dh * integrals[ind] * U2/exp(h(xj) - xj*dh) + exp(z_min * dh))/dh
+    # Inverse CDF Method to get value of x_star
+    U2 = runif(1)
+    x_star = log(dh * integrals[ind] * U2/exp(h(xj) - xj*dh) + exp(z_min * dh))/dh
+
+  }
 
   return(x_star)
 }
