@@ -41,10 +41,10 @@ test_that("Check that the derivatives for initial points are correct for the unb
 
 #################  z  #########################
 
-test_that("Check Length Consistency of z") {
+test_that("Check Length Consistency of z", {
   print("Z is calculated properly.")
   expect_equal(length(z), 1+length(Tk))
-}
+})
 
 test_that("General Functions are correct", {
   
