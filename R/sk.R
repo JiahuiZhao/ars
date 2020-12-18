@@ -21,11 +21,11 @@ integrate_exp = function(a, b, xj, h, dh) {
 sample_sk = function(Tk, z, h, exp_uks) {
 
   x_star = NA
+
   dH = sapply(Tk, function(xj) pracma::fderiv(h, xj))
 
-  # Decide which interval the value should belong to, using the densities of Uk
-  integrals = sapply(1:length(Tk),
-                     function(j) integrate_exp(z[j], z[j + 1], Tk[j], h, dH[j]))
+  nn = length(Tk)
+  integrals = integrate_exp(z[1:nn], z[-1], Tk, h, dH)
   norm = sum(integrals)
   pdfs = integrals/norm
   cdfs = cumsum(pdfs)

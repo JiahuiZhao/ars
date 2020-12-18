@@ -99,6 +99,81 @@ To make the code modular and portable, we created different helper functions and
   
 # Result 
 
+In this section, we will see how our `ars` function performs using graphs.
+
+```{r, message=FALSE,warning=FALSE}
+# install.packages("ars_0.1.0.tar.gz", repos = NULL, type = "source")
+library(ars)
+```
+
+## Standard normal distribution
+
+```{r}
+set.seed(24)
+ars_x <- ars(g=dnorm, n=1000, initial = NULL, bounds = c(-Inf, Inf))
+```
+
+```{r}
+par(mfrow = c(1, 2))
+x <- seq(-5, 5, by = 0.1)
+
+hist(ars_x, main = "histogram of ars_x (Normal)")
+
+plot(density(ars_x), xlab = "x value", main = "ars curve vs real Normal curve")
+lines(x, dnorm(x), col = 'red')
+legend("bottom", c("Samples from ars", "Real Normal curve"),
+       col = c("black", "red"),
+       lwd = 2,
+       cex = 0.6)
+```
+
+## Truncated T distribution with df = 2
+
+```{r}
+set.seed(24)
+t_dist <- function(x) {dt(x, df = 2)}
+ars_x <- ars(g=t_dist, n=1000, initial = NULL, bounds = c(0, Inf))
+```
+
+```{r}
+par(mfrow = c(1, 2))
+x <- seq(0, 5, by = 0.1)
+
+hist(ars_x, main = "histogram of ars_x (T)")
+
+plot(density(ars_x), xlab = "x value", main = "ars curve vs real T curve")
+lines(x, dexp(x), col = 'red')
+legend("topright", c("Samples from ars", "Real T curve"),
+       col = c("black", "red"),
+       lwd = 2,
+       cex = 0.6)
+```
+
+## Gamma Distribution with shape = 5 and rate = 3
+
+```{r}
+set.seed(24)
+gamma_dist <- function(x){dgamma(x, shape = 5, rate=3)}
+ars_x = ars(g=gamma_dist, n=1000, initial = NULL, bounds = c(0, Inf))
+```
+
+```{r}
+par(mfrow = c(1, 2))
+x <- seq(0, 5, by = 0.1)
+
+hist(ars_x, main = "histogram of ars_x (Gamma)")
+
+plot(density(ars_x), xlab = "x value", main = "ars curve vs real Gamma curve")
+lines(x, dgamma(x, shape = 5, rate = 3), col = 'red')
+legend("topright", c("Samples from ars", "Real Gamma curve"),
+       col = c("black", "red"),
+       lwd = 2,
+       cex = 0.6)
+```
+In all three examples above, we can see curves with samples generating using `ars` packages really close to the real density curves. 
+
 # Test
+
+
 
 # Conclusion
