@@ -17,7 +17,7 @@ test_that("Check class and length of calc_uk outputs", {
 # Test get_uk_x function.
 test_that("Throw error if domain specification of z is not valid for the given x.", {
 
-  Tk = c(-1,0,1)
+  Tk = c(-2,0,2)
   h = dnorm
   uks = calc_uk(h, Tk, F)
 
