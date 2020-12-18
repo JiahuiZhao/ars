@@ -1,6 +1,3 @@
-
-library(ars)
-
 # Test sample_sk function in sk.R file.
 
 test_that("Return error if the number of abscisscae is not one less than the length of Z, the number of intervals,

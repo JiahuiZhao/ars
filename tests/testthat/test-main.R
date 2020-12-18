@@ -1,6 +1,4 @@
 
-library(ars)
-
 # Test fderiv function.
 test_that("Check cases for different distributions.", {
   print("The derivatives are being properly calculated for the input distributions.")

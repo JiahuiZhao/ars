@@ -9,6 +9,3 @@ Description: More about what it does (maybe more than one line)
 License: None
 Encoding: UTF-8
 LazyData: true
-Suggests:
-    testthat,
-    pracma
