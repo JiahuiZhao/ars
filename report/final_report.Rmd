@@ -9,7 +9,7 @@ output: pdf_document
 
 Adaptive rejection sampling is a method for efficiently sampling from univariate probability density function which is log-concave. It is particularly useful when the distribution interested is computationally expensive. In this project, our group implemented the Adaptive Rejection Sampler (ars) based on algorithms discussed in the paper *Adaptive Rejection Sampling for Gibbs Sampling* by W. R. GILKS. More details about the algorithm is shown in Methods section. 
 
-# Methods
+# Method
 
 To make sure tangent lines can be used as upper bounds, our function `ars` assumes the input density is log concave, that is, $h(x) = log(g(x))$ is a concave function. After initializing valid x abscissas, we calculate the intersections of tangent lines using
 
@@ -177,5 +177,47 @@ In all three examples above, we can see curves with samples generating using `ar
 ```{r}
 # devtools::test()
 ```
+
+All test can be run using the above command `devtools::test()`. Tests included are listed below,
+
+* In file `test-uk.R`
+  + check if the length of `calc_uk`'s output equals to the length of `Tk`   
+  + check if the class of output of `calc_uk` is a list of functions   
+  + check that value calculated by function `get_uk_x` is numeric  
+  + for function `get_uk_x`, check if the input x is within range of vector z   
+  
+* In file `test-lk.R`
+  + check if the length of output of `calc_lk` equals to the length of `Tk` - 1   
+  + check if the class of `calc_lk`'s output is a list of functions   
+  + check if the function returns -Inf when the input $x^*$ is outside of range of $Tk$  
+  
+* In file `test-sk.R`
+  + check if the function throws an error when the number of abscissa is not one less than the number of intervals   
+  + checks that the output for a valid input of abscissa and intervals is numeric  
+  
+* In file `test-main` 
+  + use Kolmogorov-Smirnov Goodness of Fit test to check if samples generated using `ars` function have similar distribution with a known distribution, e.g. standard normal, t and gamma distributions. p-value of KS test can be adjusted based on the sampling size of x, $n$    
+  + for a distribution with bounds negative infinity to infinity, check if $h'(x_1)>0$ and $h'(x_k)<0$  
+  + for a distribution that goes from negative infinity to a finite upper bound, check if $h'(x_1)>0$  
+  + for a distribution that goes from a finite lower bound to infinity, check if $h'(x_k)<0$  
+  + for a distribution with a finite lower and finite upper bound, check if the function returns two values  
+  + check if derivative works for parts of the curve where the change in slope is extremely small
+
+* In file `test-zk.R`
+  + check if the number of intersection points is always just one more than $Tk$
+
+# Code
+
+Codes for this project can be found and downloaded from https://github.com/JiahuiZhao/ars.git 
+
+# Contribution 
+
+
+# Reference
+
+1. W. R. Gilks and P. Wild (1992), Adaptive Rejection Sampling for Gibbs Sampling, Journal of the Royal Statistical Society. Series C (Applied Statistics), 41 (2): 337-348.
+
+
+
 
 
