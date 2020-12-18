@@ -11,9 +11,8 @@ test_that("Check cases for different distributions.", {
 test_that("Check that the derivatives for initial points are correct for the unbounded cases", {
 
   norm_dist <- function(x){dnorm(x, mean=5)}
-  t_dist <- function(x){dt(x, df = 4)}
-  gamma_dist <- function(x){dgamma(x, shape = 5, rate=3)}
-  trunc_norm_dist <- function(x){dtruncnorm(x, a=-Inf, b=0)}
+  t_dist <- function(x){dt(x, df = 2)}
+  gamma_dist <- function(x){dgamma(x, shape = 2, rate=3)}
   f_dist <- function(x){df(x, df1 = 10, df2 = 3)}
   beta_dist <- function(x){dbeta(x, shape1=2, shape2=3)}
 
@@ -28,7 +27,7 @@ test_that("Check that the derivatives for initial points are correct for the unb
   expect_lt(fderiv(f_dist, calc_init_vals(f_dist, bounds = c(0, Inf))[2]), 0)
 
   print("Checking negative infinity to finite upper bound case")
-  expect_gt(fderiv(trunc_norm_dist, calc_init_vals(trunc_norm_dist, bounds = c(-Inf, 0))[1]), 0)
+  expect_gt(fderiv(dnorm, calc_init_vals(dnorm, bounds = c(-Inf, 0))[1]), 0)
 
   print("Checking finite lower bound to finite upper bound case")
   expect_length(calc_init_vals(beta_dist, bounds = c(0,1)), 2)
@@ -65,17 +64,17 @@ test_that("Distributions are correct", {
   # https://github.com/boyinggong/Adaptive-rejection-sampling/blob/master/ars/tests/testthat/test-main.R
 
   print("test normal and truncated normal with mean 0 variance 1")
-  expect_true(ks.test(ars(dnorm, c(-Inf,Inf), n = 1000), pnorm)$p.value > 0.05)
-  expect_true(ks.test(ars(dnorm, c(-1,1), n = 1000), function(x) {ptrunc(x, "norm", a = -1, b = 1)})$p.value > 0.1)
-  expect_true(ks.test(ars(dnorm, c(1,Inf), n = 1000), function(x){ptrunc(x, "norm", a = 1, b = Inf)})$p.value > 0.1)
+  expect_true(ks.test(ars(dnorm, c(-Inf,Inf), n = 1000), pnorm)$p.value > 0.01)
+  expect_true(ks.test(ars(dnorm, c(-2,2), n = 1000), function(x) {ptrunc(x, "norm", a = -2, b = 2)})$p.value > 0.01)
+  expect_true(ks.test(ars(dnorm, c(1,Inf), n = 1000), function(x){ptrunc(x, "norm", a = 1, b = Inf)})$p.value > 0.01)
 
   print("test gamma distribution with shape = 5 and rate = 3")
   gamma_dist <- function(x){dgamma(x, shape = 5, rate=3)}
   expect_true(ks.test(ars(g=gamma_dist, n=1000, initial = NULL, bounds = c(0, Inf)),
-                      function(x) {ptrunc(x, "gamma", a = 0, b = Inf, shape = 5, rate=3)})$p.value > 0.1)
+                      function(x) {ptrunc(x, "gamma", a = 0, b = Inf, shape = 5, rate=3)})$p.value > 0.01)
 
   print("test t and truncated t with degree of freedom 2")
   t_dist <- function(x) {dt(x, df = 2)}
-  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(0, Inf)), function(x) {ptrunc(x, "t", a = 0, b = Inf, df=2)})$p.value > 0.1)
-  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(-Inf, Inf)), function(x) {ptrunc(x, "t", a = -Inf, b = Inf, df=2)})$p.value > 0.1)
+  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(0, Inf)), function(x) {ptrunc(x, "t", a = 0, b = Inf, df=2)})$p.value > 0.01)
+  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(-Inf, Inf)), function(x) {ptrunc(x, "t", a = -Inf, b = Inf, df=2)})$p.value > 0.01)
   })
