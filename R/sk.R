@@ -20,6 +20,9 @@ integrate_exp = function(a, b, xj, h, dh) {
 
 sample_sk = function(Tk, z, h, exp_uks) {
 
+  if(length(Tk) != length(z)-1) {
+    stop("Number of Tk needs to one less than the number of Z.", call. = FALSE)}
+
   x_star = NA
 
   dH = sapply(Tk, function(xj) pracma::fderiv(h, xj))
