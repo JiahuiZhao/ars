@@ -34,7 +34,6 @@ x <- ars(dnorm, bounds = c(-Inf, Inf), n, initial = NULL)
 x <- ars(dnorm, bounds = c(0, Inf), n, initial = NULL)
 x <- ars(dexp, bounds = c(0, Inf), n, initial = NULL)
 
-
 t_dist <- function(x) {dt(x, df = 2)}
 x <- ars(g=t_dist, n=1000, initial = NULL, bounds = c(0, Inf))
 

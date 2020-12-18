@@ -205,6 +205,11 @@ All test can be run using the above command `devtools::test()`. Tests included a
 
 * In file `test-zk.R`
   + check if the number of intersection points is always just one more than $Tk$
+  
+Image below is a example of test report.  
+![Example of Test Report](test_result_example.png)  
+
+
 
 # Code
 
@@ -212,8 +217,9 @@ Codes for this project can be found and downloaded from https://github.com/Jiahu
 
 # Contribution 
 
+Katherine wrote main implementation; helped team members understand algorithm and helped track package. Eric Chu and Jiahui Zhao set up, tracked, organized and built package; wrote tests; modularized the initial implement; helped debug during implementation and wrote final report.     
 
-# Reference
+# Reference 
 
 1. W. R. Gilks and P. Wild (1992), Adaptive Rejection Sampling for Gibbs Sampling, Journal of the Royal Statistical Society. Series C (Applied Statistics), 41 (2): 337-348.
 

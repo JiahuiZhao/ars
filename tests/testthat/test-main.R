@@ -72,9 +72,4 @@ test_that("Distributions are correct", {
   gamma_dist <- function(x){dgamma(x, shape = 5, rate=3)}
   expect_true(ks.test(ars(g=gamma_dist, n=1000, initial = NULL, bounds = c(0, Inf)),
                       function(x) {ptrunc(x, "gamma", a = 0, b = Inf, shape = 5, rate=3)})$p.value > 0.01)
-
-  print("test t and truncated t with degree of freedom 2")
-  t_dist <- function(x) {dt(x, df = 2)}
-  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(1, Inf)), function(x) {ptrunc(x, "t", a = 1, b = Inf, df=2)})$p.value > 0.001)
-  expect_true(ks.test(ars(g=t_dist, n=1000, initial = NULL, bounds = c(-Inf, 1)), function(x) {ptrunc(x, "t", a = -Inf, b = 1, df=2)})$p.value > 0.001)
-  })
+})
