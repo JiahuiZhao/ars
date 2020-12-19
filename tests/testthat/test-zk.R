@@ -1,3 +1,6 @@
+
+library(pracma)
+
 # Test functions in the zk.R file.
 
 test_that("Test that the number of intersection points is

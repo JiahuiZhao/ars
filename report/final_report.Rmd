@@ -175,10 +175,10 @@ In all three examples above, we can see curves with samples generating using `ar
 # Test
 
 ```{r}
-# devtools::test()
+# testthat::test_package("ars")
 ```
 
-All test can be run using the above command `devtools::test()`. Tests included are listed below,
+All test can be run using the above command. Tests included are listed below,
 
 * In file `test-uk.R`
   + check if the length of `calc_uk`'s output equals to the length of `Tk`   

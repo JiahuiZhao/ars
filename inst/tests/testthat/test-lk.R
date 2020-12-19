@@ -1,4 +1,7 @@
 
+
+library(pracma)
+
 # Test functions in the lk.R file.
 
 # Test calc_lk function.
